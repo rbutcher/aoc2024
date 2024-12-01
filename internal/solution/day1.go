@@ -2,7 +2,6 @@ package solution
 
 import (
 	_ "embed"
-	"errors"
 	"github.com/rs/zerolog/log"
 	"slices"
 	"strconv"
@@ -71,5 +70,22 @@ func (d *day1) Part1() (string, error) {
 }
 
 func (d *day1) Part2() (string, error) {
-	return "", errors.New("implement me")
+	similarity := 0
+	for _, l := range d.left {
+		count := 0
+		for _, r := range d.right {
+			if l == r {
+				count += 1
+			}
+		}
+
+		similarity += count * l
+		log.Debug().
+			Int("count", count).
+			Int("left", l).
+			Int("similarity", similarity).
+			Send()
+	}
+
+	return strconv.Itoa(similarity), nil
 }
