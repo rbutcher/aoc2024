@@ -25,28 +25,30 @@ var rootCmd = &cobra.Command{
 		}
 
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-		log.Level(logLevel)
+		zerolog.SetGlobalLevel(logLevel)
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		problems := []solution.Solution{
-			solution.NewDay1(),
+		solutions := []solution.Constructor{
+			solution.NewDay1,
 		}
 
 		part := viper.GetInt(partFlagKey)
 		day := viper.GetInt(dayFlagKey)
 		l := log.With().Int(dayFlagKey, day).Int(partFlagKey, part).Logger()
-		if day <= 0 || day > len(problems) {
+		if day <= 0 || day > len(solutions) {
 			l.Fatal().Msgf("selected day is not available")
 		}
 
 		l.Debug().Msg("starting solution")
-		p := problems[day-1]
+		slnCtor := solutions[day-1]
+		sln := slnCtor()
+
 		var result string
 		var err error
 		if part == 2 {
-			result, err = p.Part2()
+			result, err = sln.Part2()
 		} else {
-			result, err = p.Part1()
+			result, err = sln.Part1()
 		}
 		l.Debug().Msg("done with solution")
 
