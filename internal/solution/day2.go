@@ -55,7 +55,7 @@ func (d *day2) String() string {
 func (d *day2) Part1() (string, error) {
 	count := 0
 	for _, row := range d.data {
-		if isSafe(row) {
+		if isSafe2(row, false) {
 			count += 1
 		}
 	}
@@ -112,6 +112,52 @@ func isSafe(numbers []int) bool {
 			return false
 		}
 		last = curr
+	}
+
+	log.Debug().
+		Ints("row", numbers).
+		Bool("safe", true).
+		Send()
+
+	return true
+}
+
+func isSafe2(numbers []int, safety bool) bool {
+	l := log.With().Ints("row", numbers).Logger()
+
+	asc := numbers[0] < numbers[1]
+	for i := 1; i < len(numbers); i++ {
+		current := numbers[i]
+		last := numbers[i-1]
+		casc := current > last
+		if (!casc && asc) || (casc && !asc) {
+			if safety {
+				safety = false
+				i += 2
+			}
+
+			l.Debug().
+				Bool("safe", false).
+				Int("last", last).
+				Int("current", current).
+				Msg("set is not all ascending or descending")
+			return false
+		}
+
+		diff := abs(current - last)
+		if diff > 3 || diff == 0 {
+			if safety {
+				safety = false
+				i += 2
+			}
+
+			l.Debug().
+				Bool("safe", false).
+				Int("last", last).
+				Int("current", current).
+				Msg("diff is too large or zero")
+			return false
+		}
 	}
 
 	log.Debug().
