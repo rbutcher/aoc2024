@@ -49,13 +49,10 @@ func (d *day2) String() string {
 	return b.String()
 }
 
-// Increasing or decreasing AND between 1 and 3 apart
-// Count safe reports
-
 func (d *day2) Part1() (string, error) {
 	count := 0
 	for _, row := range d.data {
-		if isSafe2(row, false) {
+		if isSafe(row) {
 			count += 1
 		}
 	}
@@ -68,6 +65,15 @@ func (d *day2) Part2() (string, error) {
 	for _, row := range d.data {
 		if isSafe(row) {
 			count += 1
+			continue
+		}
+
+		for i := 0; i < len(row); i++ {
+			numbers := removeAt(row, i)
+			if isSafe(numbers) {
+				count += 1
+				break
+			}
 		}
 	}
 
@@ -75,97 +81,26 @@ func (d *day2) Part2() (string, error) {
 }
 
 func isSafe(numbers []int) bool {
-	l := log.With().Ints("row", numbers).Logger()
+	asc := numbers[0] < numbers[len(numbers)-1]
+	for i := 1; i < len(numbers); i++ {
+		current := numbers[i]
+		last := numbers[i-1]
 
-	fst := numbers[0]
-	snd := numbers[1]
-	asc := snd > fst
-	diff := abs(snd - fst)
-	if diff > 3 || diff == 0 {
-		l.Debug().
-			Bool("safe", false).
-			Int("left", 0).
-			Int("right", 1).
-			Msg("diff is too large")
-		return false
-	}
-
-	last := snd
-	for _, curr := range numbers[2:] {
-		casc := curr > last
-		if (!casc && asc) || (casc && !asc) {
-			l.Debug().
-				Bool("safe", false).
-				Int("last", last).
-				Int("current", curr).
-				Msg("set is not all ascending or descending")
+		diff := current - last
+		if (diff > 0 && !asc) || (diff < 0 && asc) ||
+			(diff == 0) || (abs(diff) > 3) {
 			return false
 		}
-
-		diff = abs(curr - last)
-		if diff > 3 || diff == 0 {
-			l.Debug().
-				Bool("safe", false).
-				Int("last", last).
-				Int("current", curr).
-				Msg("diff is too large or zero")
-			return false
-		}
-		last = curr
 	}
-
-	log.Debug().
-		Ints("row", numbers).
-		Bool("safe", true).
-		Send()
 
 	return true
 }
 
-func isSafe2(numbers []int, safety bool) bool {
-	l := log.With().Ints("row", numbers).Logger()
-
-	asc := numbers[0] < numbers[1]
-	for i := 1; i < len(numbers); i++ {
-		current := numbers[i]
-		last := numbers[i-1]
-		casc := current > last
-		if (!casc && asc) || (casc && !asc) {
-			if safety {
-				safety = false
-				i += 2
-			}
-
-			l.Debug().
-				Bool("safe", false).
-				Int("last", last).
-				Int("current", current).
-				Msg("set is not all ascending or descending")
-			return false
-		}
-
-		diff := abs(current - last)
-		if diff > 3 || diff == 0 {
-			if safety {
-				safety = false
-				i += 2
-			}
-
-			l.Debug().
-				Bool("safe", false).
-				Int("last", last).
-				Int("current", current).
-				Msg("diff is too large or zero")
-			return false
-		}
-	}
-
-	log.Debug().
-		Ints("row", numbers).
-		Bool("safe", true).
-		Send()
-
-	return true
+func removeAt(numbers []int, i int) []int {
+	var result []int
+	result = append(result, numbers[:i]...)
+	result = append(result, numbers[i+1:]...)
+	return result
 }
 
 func abs(v int) int {
