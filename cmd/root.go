@@ -30,6 +30,7 @@ var rootCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		solutions := []solution.Constructor{
 			solution.NewDay1,
+			solution.NewDay2,
 		}
 
 		part := viper.GetInt(partFlagKey)
