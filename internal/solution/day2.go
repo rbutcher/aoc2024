@@ -2,6 +2,7 @@ package solution
 
 import (
 	_ "embed"
+	"github.com/rbutcher/aoc2024/internal/helpers"
 	"github.com/rs/zerolog/log"
 	"strconv"
 	"strings"
@@ -88,7 +89,7 @@ func isSafe(numbers []int) bool {
 
 		diff := current - last
 		if (diff > 0 && !asc) || (diff < 0 && asc) ||
-			(diff == 0) || (abs(diff) > 3) {
+			(diff == 0) || (helpers.Abs(diff) > 3) {
 			return false
 		}
 	}
@@ -101,12 +102,4 @@ func removeAt(numbers []int, i int) []int {
 	result = append(result, numbers[:i]...)
 	result = append(result, numbers[i+1:]...)
 	return result
-}
-
-func abs(v int) int {
-	if v < 0 {
-		return v * -1
-	}
-
-	return v
 }

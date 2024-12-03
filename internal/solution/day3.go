@@ -2,9 +2,9 @@ package solution
 
 import (
 	_ "embed"
-	"errors"
 	"github.com/rbutcher/aoc2024/internal/helpers"
 	"github.com/rs/zerolog/log"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -24,11 +24,42 @@ func NewDay3() Solution {
 	}
 
 	for i := 0; i < len(day3Input); {
-		startIdx := strings.Index(day3Input[i:], "mul(")
-		if startIdx == -1 {
+		doIdx := strings.Index(day3Input[i:], "do")
+		if doIdx == -1 {
+			doIdx = math.MaxInt
+		} else {
+			doIdx += i
+		}
+
+		dontIdx := strings.Index(day3Input[i:], "don't")
+		if dontIdx == -1 {
+			dontIdx = math.MaxInt
+		} else {
+			dontIdx += i
+		}
+
+		mulIdx := strings.Index(day3Input[i:], "mul(")
+		if mulIdx == -1 {
+			mulIdx = math.MaxInt
+		} else {
+			mulIdx += 4 + i
+		}
+
+		startIdx := helpers.Min(helpers.Min(dontIdx, doIdx), mulIdx)
+		if startIdx > len(day3Input) {
 			break
 		}
-		startIdx += 4 + i
+
+		i = startIdx + 1
+		if startIdx == dontIdx {
+			result.operators.Push("don't")
+			continue
+		}
+
+		if startIdx == doIdx {
+			result.operators.Push("do")
+			continue
+		}
 
 		endIdx := strings.Index(day3Input[startIdx:], ")")
 		if endIdx == -1 {
@@ -36,7 +67,6 @@ func NewDay3() Solution {
 		}
 		endIdx += startIdx
 
-		i = startIdx + 1
 		rawOperands := day3Input[startIdx:endIdx]
 		operandSplit := strings.Split(rawOperands, ",")
 		if len(operandSplit) != 2 {
@@ -70,7 +100,10 @@ func NewDay3() Solution {
 func (d *day3) Part1() (string, error) {
 	sum := 0
 	for !d.operators.IsEmpty() && !d.operands.IsEmpty() {
-		d.operators.Pop()
+		var op string
+		for ; op != "mul"; op, _ = d.operators.Pop() {
+		}
+
 		l, _ := d.operands.Pop()
 		r, _ := d.operands.Pop()
 
@@ -81,5 +114,20 @@ func (d *day3) Part1() (string, error) {
 }
 
 func (d *day3) Part2() (string, error) {
-	return "", errors.New("not implemented")
+	sum := 0
+	for !d.operators.IsEmpty() && !d.operands.IsEmpty() {
+		op, _ := d.operators.Pop()
+		isum := 0
+		for ; op == "mul"; op, _ = d.operators.Pop() {
+			l, _ := d.operands.Pop()
+			r, _ := d.operands.Pop()
+			isum += l * r
+		}
+
+		if op != "don't" {
+			sum += isum
+		}
+	}
+
+	return strconv.Itoa(sum), nil
 }
