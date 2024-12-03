@@ -1,7 +1,7 @@
 package solution
 
 import (
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -20,7 +20,7 @@ func TestDay1_Part1(t *testing.T) {
 	res, err := sut.Part1()
 
 	require.NoError(t, err)
-	assert.Equal(t, res, "11")
+	assert.Equal(t, "11", res)
 }
 
 func TestDay1_Part2(t *testing.T) {
@@ -30,5 +30,5 @@ func TestDay1_Part2(t *testing.T) {
 	res, err := sut.Part2()
 
 	require.NoError(t, err)
-	assert.Equal(t, res, "31")
+	assert.Equal(t, "31", res)
 }
