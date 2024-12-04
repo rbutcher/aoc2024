@@ -2,7 +2,6 @@ package solution
 
 import (
 	_ "embed"
-	"errors"
 	"github.com/rs/zerolog/log"
 	"strconv"
 	"strings"
@@ -40,7 +39,7 @@ func (d *day4) Part1() (string, error) {
 			current := d.data[iy][ix]
 			if current == 'X' {
 				for dir := 0; dir <= int(directionUpLeft); dir++ {
-					if d.checkXmasDirection(d.data, ix, iy, direction(dir)) {
+					if d.checkStringDirection(ix, iy, direction(dir), "MAS") {
 						count++
 					}
 				}
@@ -52,28 +51,38 @@ func (d *day4) Part1() (string, error) {
 }
 
 func (d *day4) Part2() (string, error) {
-	return "", errors.New("not implemented")
+	count := 0
+	for x := 0; x < len(d.data[0]); x++ {
+		for y := 0; y < len(d.data); y++ {
+			current := d.data[y][x]
+			if current == 'A' && d.checkForXMas(x, y) {
+				count++
+			}
+		}
+	}
+
+	return strconv.Itoa(count), nil
 }
 
-func (d *day4) checkXmasDirection(data []string, x, y int, dir direction) bool {
+func (d *day4) checkStringDirection(x, y int, dir direction, check string) bool {
 	l := log.With().
-		Str("context", "solution.checkXmasDirection").
+		Str("context", "solution.checkStringDirection").
 		Int("x", x).
 		Int("y", y).
 		Int("direction", int(dir)).
 		Logger()
 
-	if len(data) == 0 {
+	if len(d.data) == 0 {
 		l.Debug().Msg("passed data has no values")
 		return false
 	}
 
-	if y < 0 || y > len(data) {
+	if y < 0 || y > len(d.data) {
 		l.Debug().Msg("passed y is out of bounds")
 		return false
 	}
 
-	if x < 0 || x > len(data[0]) {
+	if x < 0 || x > len(d.data[0]) {
 		l.Debug().Msg("passed x is out of bounds")
 		return false
 	}
@@ -116,19 +125,18 @@ func (d *day4) checkXmasDirection(data []string, x, y int, dir direction) bool {
 		return false
 	}
 
-	searchLetters := []rune{'M', 'A', 'S'}
 	x += dx
 	y += dy
-	for _, r := range searchLetters {
-		if y < 0 || y >= len(data) {
+	for _, r := range check {
+		if y < 0 || y >= len(d.data) {
 			return false
 		}
 
-		if x < 0 || x >= len(data[y]) {
+		if x < 0 || x >= len(d.data[y]) {
 			return false
 		}
 
-		c := rune(data[y][x])
+		c := rune(d.data[y][x])
 		if r != c {
 			return false
 		}
@@ -138,4 +146,42 @@ func (d *day4) checkXmasDirection(data []string, x, y int, dir direction) bool {
 	}
 
 	return true
+}
+
+func (d *day4) checkForXMas(x, y int) bool {
+	l := log.With().Str("context", "solution.checkForXMas").Logger()
+	if y-1 < 0 || y+1 >= len(d.data) {
+		l.Debug().Msg("y is out of range")
+		return false
+	}
+
+	if x-1 < 0 || x+1 >= len(d.data[y]) {
+		l.Debug().Msg("x is out of range")
+		return false
+	}
+
+	isM := func(r uint8) bool { return r == 'M' }
+	isS := func(r uint8) bool { return r == 'S' }
+
+	// check up
+	if isM(d.data[y-1][x-1]) && isM(d.data[y-1][x+1]) && isS(d.data[y+1][x-1]) && isS(d.data[y+1][x+1]) {
+		return true
+	}
+
+	// check right
+	if isM(d.data[y-1][x+1]) && isM(d.data[y+1][x+1]) && isS(d.data[y-1][x-1]) && isS(d.data[y+1][x-1]) {
+		return true
+	}
+
+	// check down
+	if isM(d.data[y+1][x-1]) && isM(d.data[y+1][x+1]) && isS(d.data[y-1][x-1]) && isS(d.data[y-1][x+1]) {
+		return true
+	}
+
+	// check left
+	if isM(d.data[y-1][x-1]) && isM(d.data[y+1][x-1]) && isS(d.data[y-1][x+1]) && isS(d.data[y+1][x+1]) {
+		return true
+	}
+
+	return false
 }

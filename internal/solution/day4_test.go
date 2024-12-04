@@ -30,5 +30,9 @@ func TestDay4_Part1(t *testing.T) {
 func TestDay4_Part2(t *testing.T) {
 	day4Input = day4TestInput
 
-	assert.Fail(t, "not implemented")
+	sut := NewDay4()
+	res, err := sut.Part2()
+
+	require.NoError(t, err)
+	assert.Equal(t, "9", res)
 }
