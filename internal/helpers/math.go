@@ -27,3 +27,15 @@ func Abs[T Signed](value T) T {
 
 	return value
 }
+
+func Clamp[T Signed](value, min, max T) T {
+	if value > max {
+		return max
+	}
+
+	if value < min {
+		return min
+	}
+
+	return value
+}
