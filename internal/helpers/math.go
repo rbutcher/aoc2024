@@ -1,5 +1,7 @@
 package helpers
 
+import "fmt"
+
 type Signed interface {
 	~int | ~int8 | ~int16 | ~int32 | ~int64 | ~float32 | ~float64
 }
@@ -38,4 +40,13 @@ func Clamp[T Signed](value, min, max T) T {
 	}
 
 	return value
+}
+
+type Point[T Signed] struct {
+	X T
+	Y T
+}
+
+func (p Point[T]) String() string {
+	return fmt.Sprintf("(%v,%v)", p.X, p.Y)
 }
