@@ -1,10 +1,17 @@
 package solution
 
 import (
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"os"
 	"testing"
 )
+
+func init() {
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+}
 
 const day5TestInput = `47|53
 97|13
@@ -43,4 +50,13 @@ func TestDay5_Part1(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.Equal(t, "143", res)
+}
+func TestDay5_Part2(t *testing.T) {
+	day5Input = day5TestInput
+
+	sut := NewDay5()
+	res, err := sut.Part2()
+
+	require.NoError(t, err)
+	assert.Equal(t, "123", res)
 }

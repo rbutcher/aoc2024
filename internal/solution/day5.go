@@ -2,7 +2,6 @@ package solution
 
 import (
 	_ "embed"
-	"errors"
 	"fmt"
 	"github.com/rbutcher/aoc2024/internal/helpers"
 	"github.com/rs/zerolog/log"
@@ -85,29 +84,9 @@ func (d *day5) String() string {
 
 func (d *day5) Part1() (string, error) {
 	sum := 0
-	for _, pages := range d.updatePages {
-		valid := true
-		for i, x := range pages {
-			rules := d.getPageRules(x)
-			for _, r := range rules {
-				if slices.Contains(pages[:i], r.Y) {
-					valid = false
-					log.Debug().
-						Ints("update", pages).
-						Str("violation", r.String()).
-						Send()
-					break
-				}
-			}
-
-			if !valid {
-				break
-			}
-		}
-
-		if valid {
-			i := len(pages) / 2
-			sum += pages[i]
+	for i := 0; i < len(d.updatePages); i++ {
+		if d.isValidPageOrder(i) {
+			sum += d.updatePages[i][len(d.updatePages[i])/2]
 		}
 	}
 
@@ -115,7 +94,22 @@ func (d *day5) Part1() (string, error) {
 }
 
 func (d *day5) Part2() (string, error) {
-	return "", errors.New("not implemented")
+	sum := 0
+	for i := 0; i < len(d.updatePages); i++ {
+		if !d.isValidPageOrder(i) {
+			ro := d.reorderPages(i)
+
+			log.Debug().
+				Ints("orig", d.updatePages[i]).
+				Ints("reorder", ro).
+				Int("mid", ro[len(ro)/2]).
+				Send()
+
+			sum += ro[len(ro)/2]
+		}
+	}
+
+	return strconv.Itoa(sum), nil
 }
 
 func (d *day5) getPageRules(x int) []helpers.Point[int] {
@@ -124,6 +118,47 @@ func (d *day5) getPageRules(x int) []helpers.Point[int] {
 		if p.X == x {
 			result = append(result, p)
 		}
+	}
+
+	return result
+}
+
+func (d *day5) isValidPageOrder(i int) bool {
+	var pageOrders = d.updatePages[i]
+	for ip, p := range pageOrders {
+		rules := d.getPageRules(p)
+		for _, r := range rules {
+			if slices.Contains(pageOrders[:ip], r.Y) {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+func (d *day5) reorderPages(i int) []int {
+	result := []int{d.updatePages[i][0]}
+	for _, x := range d.updatePages[i][1:] {
+		before := len(result)
+		rules := d.getPageRules(x)
+		for _, r := range rules {
+			fi := slices.Index(result, r.Y)
+			if fi != -1 {
+				log.Debug().
+					Ints("orig", d.updatePages[i]).
+					Ints("ro", result).
+					Str("rule", r.String()).
+					Int("curr", x).
+					Int("prev", before).
+					Int("after", fi).
+					Send()
+				before = helpers.Min(fi, before)
+			}
+		}
+
+		result = slices.Insert(result, before, x)
+		log.Debug().Int("before", before).Ints("ro", result).Send()
 	}
 
 	return result
