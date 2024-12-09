@@ -34,6 +34,7 @@ var rootCmd = &cobra.Command{
 			solution.NewDay3,
 			solution.NewDay4,
 			solution.NewDay5,
+			solution.NewDay6,
 		}
 
 		part := viper.GetInt(partFlagKey)

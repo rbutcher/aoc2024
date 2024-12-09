@@ -47,6 +47,10 @@ type Point[T Signed] struct {
 	Y T
 }
 
+func PointZero[T Signed]() Point[T] {
+	return Point[T]{0, 0}
+}
+
 func (p Point[T]) String() string {
 	return fmt.Sprintf("(%v,%v)", p.X, p.Y)
 }
