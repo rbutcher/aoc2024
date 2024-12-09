@@ -2,22 +2,10 @@ package solution
 
 import (
 	_ "embed"
+	"github.com/rbutcher/aoc2024/internal/helpers"
 	"github.com/rs/zerolog/log"
 	"strconv"
 	"strings"
-)
-
-type direction int
-
-const (
-	directionUp direction = iota
-	directionUpRight
-	directionRight
-	directionDownRight
-	directionDown
-	directionDownLeft
-	directionLeft
-	directionUpLeft
 )
 
 //go:embed input/day4.txt
@@ -38,8 +26,8 @@ func (d *day4) Part1() (string, error) {
 		for iy := 0; iy < len(d.data); iy++ {
 			current := d.data[iy][ix]
 			if current == 'X' {
-				for dir := 0; dir <= int(directionUpLeft); dir++ {
-					if d.checkStringDirection(ix, iy, direction(dir), "MAS") {
+				for dir := helpers.DirectionMin().Int(); dir <= helpers.DirectionMax().Int(); dir++ {
+					if d.checkStringDirection(ix, iy, helpers.Direction(dir), "MAS") {
 						count++
 					}
 				}
@@ -64,7 +52,7 @@ func (d *day4) Part2() (string, error) {
 	return strconv.Itoa(count), nil
 }
 
-func (d *day4) checkStringDirection(x, y int, dir direction, check string) bool {
+func (d *day4) checkStringDirection(x, y int, dir helpers.Direction, check string) bool {
 	l := log.With().
 		Str("context", "solution.checkStringDirection").
 		Int("x", x).
@@ -87,46 +75,9 @@ func (d *day4) checkStringDirection(x, y int, dir direction, check string) bool 
 		return false
 	}
 
-	var dx, dy int
-	switch dir {
-	case directionUp:
-		dx = 0
-		dy = -1
-
-	case directionUpRight:
-		dx = 1
-		dy = -1
-
-	case directionRight:
-		dx = 1
-		dy = 0
-
-	case directionDownRight:
-		dx = 1
-		dy = 1
-
-	case directionDown:
-		dx = 0
-		dy = 1
-
-	case directionDownLeft:
-		dx = -1
-		dy = 1
-
-	case directionLeft:
-		dx = -1
-		dy = 0
-
-	case directionUpLeft:
-		dx = -1
-		dy = -1
-
-	default:
-		return false
-	}
-
-	x += dx
-	y += dy
+	delta := dir.GetMoveDelta()
+	x += delta.X
+	y += delta.Y
 	for _, r := range check {
 		if y < 0 || y >= len(d.data) {
 			return false
@@ -141,8 +92,8 @@ func (d *day4) checkStringDirection(x, y int, dir direction, check string) bool 
 			return false
 		}
 
-		x += dx
-		y += dy
+		x += delta.X
+		y += delta.Y
 	}
 
 	return true
