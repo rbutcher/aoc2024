@@ -36,7 +36,7 @@ func (d *day6) Part1() (string, error) {
 	visited, last, ok := walkToObstacle(d.data, dir, d.start)
 	allVisited = mapZip(allVisited, visited)
 	for ok {
-		dir = nextDir(dir)
+		dir = dir.Rotate90CW()
 		visited, last, ok = walkToObstacle(d.data, dir, last)
 		allVisited = mapZip(allVisited, visited)
 	}
@@ -107,24 +107,4 @@ func findStart(data []string) (helpers.Point[int], bool) {
 	}
 
 	return helpers.PointZero[int](), false
-}
-
-func nextDir(dir helpers.Direction) helpers.Direction {
-	switch dir {
-	case helpers.DirectionUp:
-		return helpers.DirectionRight
-
-	case helpers.DirectionRight:
-		return helpers.DirectionDown
-
-	case helpers.DirectionDown:
-		return helpers.DirectionLeft
-
-	case helpers.DirectionLeft:
-		return helpers.DirectionUp
-
-	default:
-		msg := fmt.Sprintf("invalid direction, expected up, left, down, or right: %s", dir)
-		panic(msg)
-	}
 }

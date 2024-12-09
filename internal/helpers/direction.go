@@ -55,6 +55,10 @@ func (d Direction) GetMoveDelta() Point[int] {
 	}
 }
 
+func (d Direction) Rotate90CW() Direction {
+	return Direction((d.Int() + 2) % 8)
+}
+
 func (d Direction) Int() int {
 	return int(d)
 }
